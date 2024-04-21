@@ -1,0 +1,15 @@
+@import url('/src/styles/pages.css');
+@import url('/src/styles/forms.css');
+
+#root,
+#main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+#main-container {
+  align-items: center;
+  text-align: center;
+}

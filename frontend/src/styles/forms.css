@@ -1,0 +1,17 @@
+.form {
+  margin: 0 auto;
+  width: 80%;
+}
+
+.form-input-container {
+  margin: 1rem;
+}
+
+.form-label {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 45vh;
+  width: 80%;
+}
