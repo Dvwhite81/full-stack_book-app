@@ -16,9 +16,9 @@ const userSchema = new mongoose_1.default.Schema({
         required: true,
         minLength: 4,
     },
-    booksRead: [],
-    booksToRead: [],
-    bookReviews: [],
+    booksRead: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'BookModel' }],
+    booksToRead: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'BookModel' }],
+    bookReviews: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'BookModel' }],
 });
 userSchema.set('toJSON', {
     transform: (document, returnedUser) => {

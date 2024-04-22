@@ -1,30 +1,28 @@
 import { SyntheticEvent, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-import { EventType, UserType } from '../utils/types';
-import AddEventForm from '../components/AddEventForm';
+import { BookReview, BookInDB, UserType, BookType } from '../utils/types';
 import { useNavigate } from 'react-router-dom';
+import SearchForm from '../components/SearchForm';
+import bookService from '../services/bookService';
+import BookDisplay from '../components/BookDisplay';
 
 interface HomePageProps {
   loggedInUser: UserType | null;
-  userEvents: EventType[];
-  addEvent: (
-    description: string,
-    allDay: boolean,
-    start: string,
-    end: string
-  ) => void;
-  handleDeleteEvent: (eventId: string) => void;
+  userHasRead: BookInDB[];
+  userToRead: BookInDB[];
+  userReviews: BookReview[];
   handleLogOut: (e: SyntheticEvent) => void;
+  setCurrentBook: (book: BookType) => void;
 }
 
 const HomePage = ({
   loggedInUser,
-  userEvents,
-  addEvent,
-  handleDeleteEvent,
   handleLogOut,
+  setCurrentBook,
 }: HomePageProps) => {
-  const [showEvents, setShowEvents] = useState(false);
+  const [bookResults, setBookResults] = useState<BookType[]>([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +33,18 @@ const HomePage = ({
     }
   });
 
+  const handleSearch = async (searchTerm: string) => {
+    const result = await bookService.searchBooks(searchTerm);
+    const { success, books, message } = result;
+
+    console.log('BOOKS:', books);
+    if (success) {
+      setBookResults(books);
+    } else {
+      toast.error(message);
+    }
+  };
+
   return (
     <div className="page home-page">
       <h2>Logged In User: {loggedInUser?.username}</h2>
@@ -42,34 +52,10 @@ const HomePage = ({
         Log Out
       </button>
 
-      {!showEvents && (
-        <button type="button" onClick={() => setShowEvents(true)}>
-          Show Events
-        </button>
+      <SearchForm handleSearch={handleSearch} />
+      {bookResults.length > 0 && (
+        <BookDisplay books={bookResults} setCurrentBook={setCurrentBook} />
       )}
-
-      {showEvents && (
-        <div>
-          <button type="button" onClick={() => setShowEvents(false)}>
-            Hide Events
-          </button>
-          <ul>
-            {userEvents.map((event) => (
-              <li key={event._id}>
-                <p>{event.description}</p>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteEvent(event._id)}
-                >
-                  x
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <AddEventForm addEvent={addEvent} />
     </div>
   );
 };

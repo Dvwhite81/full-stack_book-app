@@ -38,6 +38,7 @@ booksRouter.post('/reviews', async (req, res: Response) => {
   const newBookModel = new BookModel({
     bookId,
     volumeInfo,
+    userHasRead: true,
     userReview: {
       score,
       reviewText: reviewText || '',

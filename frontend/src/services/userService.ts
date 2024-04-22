@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { EventFormData } from '../utils/types';
+import { BookType } from '../utils/types';
 
 const baseUrl = 'http://localhost:7000/api';
 
@@ -86,12 +86,12 @@ const getUserEvents = async (username: string, token: string) => {
   }
 };
 
-const addUserEvent = async (token: string, newEvent: EventFormData) => {
+const addHasRead = async (token: string, book: BookType) => {
   const { data } = await axios.post(
-    `${baseUrl}/events`,
+    `${baseUrl}/books/has-read`,
     {
       token,
-      event: newEvent,
+      book,
     },
     {
       headers: {
@@ -100,13 +100,13 @@ const addUserEvent = async (token: string, newEvent: EventFormData) => {
     }
   );
 
-  console.log('addUserEvent data:', data);
+  console.log('addHasRead data:', data);
   if (data.success) {
     return {
       success: true,
       message: data.message,
-      newEvent: newEvent,
-      events: data.events,
+      newBook: book,
+      hasRead: data.hasRead,
     };
   } else {
     return {
@@ -151,7 +151,7 @@ const getUserByToken = async (token: string) => {
 };
 
 export default {
-  addUserEvent,
+  addHasRead,
   deleteUserEvent,
   getUserByToken,
   getUserEvents,

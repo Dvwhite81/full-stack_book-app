@@ -2,8 +2,9 @@ export interface UserType {
   _id: string;
   username: string;
   password: string;
-  events: EventType[];
-  toDos: ToDoType[];
+  booksRead: BookInDB[];
+  booksToRead: BookInDB[];
+  bookReviews: BookReview[];
 }
 
 export interface InputField {
@@ -33,43 +34,45 @@ export interface UserResult {
   message: string;
 }
 
-export interface ToDoFormData {
+export interface BookInfo {
   title: string;
-  urgency: string;
-  color: string;
-}
-
-export interface ToDoType extends ToDoFormData {
-  _id: string;
-}
-
-export interface EventFormData {
+  authors?: string[];
+  publishedDate: string;
   description: string;
-  allDay: boolean;
-  start: string;
-  end: string;
-}
-
-export interface EventType {
-  _id: string;
-  description: string;
-  allDay: boolean;
-  start: string;
-  end: string;
-}
-
-export interface EventStyleType {
-  style: {
-    backgroundColor: string | undefined;
-    borderColor: string | undefined;
+  pageCount: number;
+  categories: string[];
+  imageLinks?: {
+    smallThumbnail: string;
+    thumbnail: string;
   };
 }
 
-export interface CurrentDayType {
-  currentMonth: boolean;
-  date: Date;
-  month: number;
-  number: number;
-  selected: boolean;
-  year: number;
+export interface BookType {
+  id?: string;
+  bookId: string;
+  searchInfo: {
+    textSnippet: string;
+  };
+  volumeInfo: BookInfo;
+  userHasRead: boolean;
+  userReview?: {
+    score?: number;
+    reviewText?: string;
+  };
+}
+
+export interface BookInDB extends BookType {
+  _id: string;
+}
+
+export interface QueryType {
+  kind: string;
+  totalItems: number;
+  items: BookType[];
+}
+
+export interface BookReview {
+  book: BookType;
+  score: number;
+  reviewText?: string;
 }

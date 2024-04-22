@@ -1,19 +1,28 @@
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import moment from 'moment';
 
-import { AuthResult, EventType, UserType } from './utils/types';
+import {
+  AuthResult,
+  BookReview,
+  BookInDB,
+  UserType,
+  BookType,
+} from './utils/types';
 import userService from './services/userService';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import './App.css';
+import BookDetails from './components/BookDetails/BookDetails';
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<UserType | null>(null);
-  const [userEvents, setUserEvents] = useState<EventType[]>([]);
+  const [userHasRead, setUserHasRead] = useState<BookInDB[]>([]);
+  const [userToRead, setUserToRead] = useState<BookInDB[]>([]);
+  const [userReviews, setUserReviews] = useState<BookReview[]>([]);
+  const [currentBook, setCurrentBook] = useState<BookType | null>(null);
 
   const navigate = useNavigate();
 
@@ -33,7 +42,9 @@ function App() {
             console.log('checkLogged user:', user);
 
             setLoggedInUser(user);
-            setUserEvents(user.events);
+            setUserHasRead(user.booksRead);
+            setUserToRead(user.booksToRead);
+            setUserReviews(user.bookReviews);
             navigate('/');
           } else {
             localStorage.removeItem('token');
@@ -96,62 +107,12 @@ function App() {
         if (user && token) {
           setLoggedInUser(user);
           localStorage.setItem('token', token);
-          setUserEvents(user.events);
+          setUserHasRead(user.booksRead);
+          setUserToRead(user.booksToRead);
+          setUserReviews(user.bookReviews);
           navigate('/');
         }
 
-        toast.success(message);
-      } else {
-        toast.error(message);
-      }
-    }
-  };
-
-  const addEvent = async (
-    description: string,
-    allDay: boolean,
-    start: string,
-    end: string
-  ) => {
-    const token = localStorage.getItem('token');
-
-    if (!loggedInUser || !token) return;
-
-    const newEvent = {
-      description,
-      allDay,
-      start: moment(start).format('yyyy-MM-DD'),
-      end: moment(end).format('yyyy-MM-DD'),
-    };
-
-    const result = await userService.addUserEvent(token, newEvent);
-
-    if (result) {
-      const { success, message } = result;
-
-      if (success) {
-        toast.success(message);
-        setUserEvents(result.events);
-      } else {
-        toast.error(message);
-      }
-    }
-  };
-
-  const handleDeleteEvent = async (eventId: string) => {
-    console.log('handleDeleteEvent eventId:', eventId);
-    if (!loggedInUser) return;
-
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const result = await userService.deleteUserEvent(token, eventId);
-    console.log('handleDelete result:', result);
-    if (result) {
-      const { success, events, message } = result;
-
-      if (success) {
-        setUserEvents(events);
         toast.success(message);
       } else {
         toast.error(message);
@@ -168,6 +129,27 @@ function App() {
     toast.success('Logged out');
   };
 
+  /*
+  const addHasRead = async (book: BookType) => {
+    const token = localStorage.getItem('token');
+
+    if (!loggedInUser || !token) return;
+
+    const result = await userService.addHasRead(token, book);
+
+    if (result) {
+      const { success, message } = result;
+
+      if (success) {
+        toast.success(message);
+        setUserHasRead(result.hasRead);
+      } else {
+        toast.error(message);
+      }
+    }
+  };
+  */
+
   return (
     <div id="main-container">
       <Routes>
@@ -176,10 +158,11 @@ function App() {
           element={
             <HomePage
               loggedInUser={loggedInUser}
-              userEvents={userEvents}
-              addEvent={addEvent}
-              handleDeleteEvent={handleDeleteEvent}
+              userHasRead={userHasRead}
+              userToRead={userToRead}
+              userReviews={userReviews}
               handleLogOut={handleLogOut}
+              setCurrentBook={setCurrentBook}
             />
           }
         />
@@ -192,6 +175,7 @@ function App() {
           element={<LoginPage handleLogin={handleLogin} />}
         />
       </Routes>
+      {currentBook && <BookDetails book={currentBook} setCurrentBook={setCurrentBook} />}
       <ToastContainer theme="colored" newestOnTop />
     </div>
   );

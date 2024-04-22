@@ -12,9 +12,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     minLength: 4,
   },
-  booksRead: [],
-  booksToRead: [],
-  bookReviews: [],
+  booksRead: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BookModel' }],
+  booksToRead: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BookModel' }],
+  bookReviews: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BookModel' }],
 });
 
 userSchema.set('toJSON', {

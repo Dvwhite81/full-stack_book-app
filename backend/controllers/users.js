@@ -18,14 +18,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../utils/config"));
 const user_1 = __importDefault(require("../models/user"));
 const usersRouter = (0, express_1.Router)();
-const populateQuery = [
-    { path: 'booksRead', select: 'bookId' },
-    { path: 'booksToRead', select: 'bookId' },
-    { path: 'bookReviews', select: 'bookId' },
-];
 // Get All Users
 usersRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_1.default.find({}).populate(populateQuery);
+    const users = yield user_1.default.find({}).populate('booksRead', 'booksToRead', 'bookReviews');
     res.json(users);
 }));
 // Get User by Token

@@ -7,15 +7,13 @@ import User from '../models/user';
 
 const usersRouter = Router();
 
-const populateQuery = [
-  { path: 'booksRead', select: 'bookId' },
-  { path: 'booksToRead', select: 'bookId' },
-  { path: 'bookReviews', select: 'bookId' },
-];
-
 // Get All Users
 usersRouter.get('/', async (req, res) => {
-  const users = await User.find({}).populate(populateQuery);
+  const users = await User.find({}).populate(
+    'booksRead',
+    'booksToRead',
+    'bookReviews'
+  );
   res.json(users);
 });
 
@@ -51,25 +49,6 @@ usersRouter.get('/:username/books', async (req, res) => {
     });
   } else {
     res.status(404).end();
-  }
-});
-
-// Add Read Book or Book To Read
-usersRouter.post('/:username', async (req, res) => {
-  const { username } = req.params;
-  const user = await User.findOne({ username: username });
-
-  if (user) {
-    const { book, type } = req.body;
-
-    if (type === 'hasRead') {
-      user.booksRead = user.booksRead.concat(book);
-    } else if (type === 'toRead') {
-      user.booksToRead = user.booksToRead.concat(book);
-    }
-
-    await user.save();
-    res.json(user);
   }
 });
 

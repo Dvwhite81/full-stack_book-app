@@ -46,6 +46,7 @@ booksRouter.post('/reviews', (req, res) => __awaiter(void 0, void 0, void 0, fun
     const newBookModel = new book_1.default({
         bookId,
         volumeInfo,
+        userHasRead: true,
         userReview: {
             score,
             reviewText: reviewText || '',
