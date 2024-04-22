@@ -8,8 +8,9 @@ import User from '../models/user';
 const usersRouter = Router();
 
 const populateQuery = [
-  { path: 'events', select: 'title' },
-  { path: 'toDos', select: 'description' },
+  { path: 'booksRead', select: 'bookId' },
+  { path: 'booksToRead', select: 'bookId' },
+  { path: 'bookReviews', select: 'bookId' },
 ];
 
 // Get All Users
@@ -37,56 +38,38 @@ usersRouter.get('/:token', async (req, res) => {
   });
 });
 
-// Get User Events by Username
-usersRouter.get('/:username/events', async (req, res) => {
+// Get User Books by Username
+usersRouter.get('/:username/books', async (req, res) => {
   const { username } = req.params;
   const user = await User.findOne({ username: username });
-  console.log('backend get user events user:', user);
+
   if (user) {
     res.json({
-      success: true,
-      events: user.events,
+      booksRead: user.booksRead,
+      booksToRead: user.booksToRead,
+      bookReviews: user.bookReviews,
     });
   } else {
     res.status(404).end();
   }
 });
 
-// Get User ToDos by Username
-usersRouter.get('/:username/toDos', async (req, res) => {
+// Add Read Book or Book To Read
+usersRouter.post('/:username', async (req, res) => {
   const { username } = req.params;
   const user = await User.findOne({ username: username });
 
   if (user) {
-    res.json({
-      toDos: user.toDos,
-    });
-  } else {
-    res.status(404).end();
-  }
-});
+    const { book, type } = req.body;
 
-// Delete Event
-usersRouter.put('/:username/events/:eventId', async (req, res) => {
-  const { username, eventId } = req.params;
-  console.log('usersRouter put eventId:', eventId);
-  const user = await User.findOne({ username: username });
+    if (type === 'hasRead') {
+      user.booksRead = user.booksRead.concat(book);
+    } else if (type === 'toRead') {
+      user.booksToRead = user.booksToRead.concat(book);
+    }
 
-  if (user) {
-    const { events } = user;
-    const newEvents = events.filter(
-      (event) => event._id.toString() !== eventId
-    );
-
-    user.events = newEvents;
     await user.save();
-
-    res.json({
-      success: true,
-      events: newEvents,
-    });
-  } else {
-    res.status(404).end();
+    res.json(user);
   }
 });
 

@@ -14,18 +14,44 @@ export interface UserType {
   _id: string;
   username: string;
   password: string;
-  events: EventType[];
 }
 
-export interface EventType {
-  description: string;
-  allDay: boolean;
-  start: Date;
-  end: Date;
+export interface UserWithBooks {
+  user: UserType;
+  booksRead: BookType[];
+  booksToRead: BookType[];
+  bookReviews: BookReview[];
 }
 
-export interface ToDoType {
+export interface BookInfo {
   title: string;
-  color: string;
-  urgency: string;
+  authors: string[];
+  publishedDate: string;
+  description: string;
+  pageCount: number;
+  categories: string[];
+  imageLinks: {
+    smallThumbnail: string;
+    thumbnail: string;
+  };
+  searchInfo: {
+    textSnippet: string;
+  };
+}
+
+export interface BookType {
+  bookId: string;
+  volumeInfo: BookInfo;
+}
+
+export interface QueryType {
+  kind: string;
+  totalItems: number;
+  items: BookType[];
+}
+
+export interface BookReview {
+  book: BookType;
+  score: number;
+  reviewText?: string;
 }

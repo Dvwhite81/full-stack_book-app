@@ -16,8 +16,9 @@ const userSchema = new mongoose_1.default.Schema({
         required: true,
         minLength: 4,
     },
-    events: [],
-    toDos: [],
+    booksRead: [],
+    booksToRead: [],
+    bookReviews: [],
 });
 userSchema.set('toJSON', {
     transform: (document, returnedUser) => {

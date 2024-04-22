@@ -63,7 +63,6 @@ const userExtractor = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         return next();
     }
     console.log('userExtractor token:', token);
-    console.log('req:', req);
     const decodedToken = jsonwebtoken_1.default.verify(token, process.env.SECRET);
     console.log('decodedToken:', decodedToken);
     if (!decodedToken.id) {

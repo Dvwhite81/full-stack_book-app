@@ -23,7 +23,7 @@ const errorHandler = (
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   logger.error(error.message);
 
@@ -60,7 +60,7 @@ const tokenExtractor = (req: Request, res: Response, next: NextFunction) => {
 const userExtractor = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const token = tokenExtractor(req, res, next);
   console.log('FIRST token:', token);
@@ -69,9 +69,11 @@ const userExtractor = async (
   }
 
   console.log('userExtractor token:', token);
-  console.log('req:', req);
 
-  const decodedToken = jwt.verify(token, process.env.SECRET as Secret) as CustomJwtPayload;
+  const decodedToken = jwt.verify(
+    token,
+    process.env.SECRET as Secret
+  ) as CustomJwtPayload;
   console.log('decodedToken:', decodedToken);
 
   if (!decodedToken.id) {

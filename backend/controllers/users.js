@@ -19,8 +19,9 @@ const config_1 = __importDefault(require("../utils/config"));
 const user_1 = __importDefault(require("../models/user"));
 const usersRouter = (0, express_1.Router)();
 const populateQuery = [
-    { path: 'events', select: 'title' },
-    { path: 'toDos', select: 'description' },
+    { path: 'booksRead', select: 'bookId' },
+    { path: 'booksToRead', select: 'bookId' },
+    { path: 'bookReviews', select: 'bookId' },
 ];
 // Get All Users
 usersRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,51 +43,35 @@ usersRouter.get('/:token', (req, res) => __awaiter(void 0, void 0, void 0, funct
         user: dbUser,
     });
 }));
-// Get User Events by Username
-usersRouter.get('/:username/events', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Get User Books by Username
+usersRouter.get('/:username/books', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.params;
     const user = yield user_1.default.findOne({ username: username });
-    console.log('backend get user events user:', user);
     if (user) {
         res.json({
-            success: true,
-            events: user.events,
+            booksRead: user.booksRead,
+            booksToRead: user.booksToRead,
+            bookReviews: user.bookReviews,
         });
     }
     else {
         res.status(404).end();
     }
 }));
-// Get User ToDos by Username
-usersRouter.get('/:username/toDos', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Add Read Book or Book To Read
+usersRouter.post('/:username', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.params;
     const user = yield user_1.default.findOne({ username: username });
     if (user) {
-        res.json({
-            toDos: user.toDos,
-        });
-    }
-    else {
-        res.status(404).end();
-    }
-}));
-// Delete Event
-usersRouter.put('/:username/events/:eventId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, eventId } = req.params;
-    console.log('usersRouter put eventId:', eventId);
-    const user = yield user_1.default.findOne({ username: username });
-    if (user) {
-        const { events } = user;
-        const newEvents = events.filter((event) => event._id.toString() !== eventId);
-        user.events = newEvents;
+        const { book, type } = req.body;
+        if (type === 'hasRead') {
+            user.booksRead = user.booksRead.concat(book);
+        }
+        else if (type === 'toRead') {
+            user.booksToRead = user.booksToRead.concat(book);
+        }
         yield user.save();
-        res.json({
-            success: true,
-            events: newEvents,
-        });
-    }
-    else {
-        res.status(404).end();
+        res.json(user);
     }
 }));
 // Delete User
