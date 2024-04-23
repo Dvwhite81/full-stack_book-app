@@ -106,6 +106,7 @@ booksRouter.post('/:type', async (req, res: Response) => {
     success: true,
     message: 'Marked book read!',
     book: savedBookModel,
+    hasRead: dbUser.booksRead,
   });
 });
 

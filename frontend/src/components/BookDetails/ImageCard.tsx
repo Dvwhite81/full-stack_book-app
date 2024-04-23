@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useEffect, useState } from 'react';
 import { BookInDB, BookType } from '../../utils/types';
 import BasicInfo from './BasicInfo';
 import HideButton from './HideButton';
@@ -20,21 +20,26 @@ const ImageCard = ({
   addHasRead,
   userHasRead,
 }: ImageCardProps) => {
+  const [hasBeenRead, setHasBeenRead] = useState(false);
   const { volumeInfo } = book;
-  const [tempHasBeenRead, setTempHasBeenRead] = useState(false);
 
-  const bookHasBeenRead =
-    tempHasBeenRead ||
-    (userHasRead &&
+  useEffect(() => {
+    console.log('useEffect book:', book);
+    console.log('useEffect hasBeenRead:', hasBeenRead);
+    if (
+      userHasRead &&
       (userHasRead.map((b) => b.bookId).includes(book.bookId) ||
-        (book.id && userHasRead.map((b) => b.bookId).includes(book.id))));
+        (book.id && userHasRead.map((b) => b.bookId).includes(book.id)))
+    ) {
+      setHasBeenRead(true);
+    } else {
+      setHasBeenRead(false);
+    }
+  });
 
   const handleClick = (e: SyntheticEvent) => {
     e.preventDefault();
     addHasRead(book);
-    if (!tempHasBeenRead) {
-      setTempHasBeenRead(true);
-    }
   };
 
   return (
@@ -49,7 +54,7 @@ const ImageCard = ({
       {volumeInfo.imageLinks && (
         <div className="column">
           <HideButton setCurrentBook={setCurrentBook} />
-          {bookHasBeenRead ? (
+          {hasBeenRead ? (
             <p>Read!</p>
           ) : (
             <button onClick={handleClick}>Mark Read</button>

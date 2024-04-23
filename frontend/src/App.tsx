@@ -164,6 +164,7 @@ function App() {
       console.log('addHasRead result:', result);
       if (success) {
         toast.success(message);
+        console.log('addHasRead result.hasRead:', result.hasRead);
         setUserHasRead(result.hasRead);
       } else {
         toast.error(message);

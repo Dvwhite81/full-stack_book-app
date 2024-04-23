@@ -102,6 +102,7 @@ booksRouter.post('/:type', (req, res) => __awaiter(void 0, void 0, void 0, funct
         success: true,
         message: 'Marked book read!',
         book: savedBookModel,
+        hasRead: dbUser.booksRead,
     });
 }));
 booksRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
