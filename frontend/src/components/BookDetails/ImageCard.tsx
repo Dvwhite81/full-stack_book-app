@@ -27,15 +27,14 @@ const ImageCard = ({
     console.log('useEffect book:', book);
     console.log('useEffect hasBeenRead:', hasBeenRead);
     if (
-      userHasRead &&
-      (userHasRead.map((b) => b.bookId).includes(book.bookId) ||
-        (book.id && userHasRead.map((b) => b.bookId).includes(book.id)))
+      userHasRead.map((b) => b.bookId).includes(book.bookId) ||
+      (book.id && userHasRead.map((b) => b.bookId).includes(book.id))
     ) {
       setHasBeenRead(true);
     } else {
       setHasBeenRead(false);
     }
-  });
+  }, [userHasRead]);
 
   const handleClick = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -57,9 +56,11 @@ const ImageCard = ({
           {hasBeenRead ? (
             <p>Read!</p>
           ) : (
-            <button onClick={handleClick}>Mark Read</button>
+            <button className="btn" onClick={handleClick}>
+              Mark Read
+            </button>
           )}
-          <button>Review</button>
+          <button className="btn">Review</button>
           <img
             className="small-thumbnail"
             src={volumeInfo.imageLinks.smallThumbnail}

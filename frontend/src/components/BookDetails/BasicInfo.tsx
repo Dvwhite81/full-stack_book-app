@@ -16,6 +16,8 @@ const BasicInfo = ({
     volumeInfo;
   const { textSnippet } = searchInfo;
 
+  const hasDescription = description && description !== textSnippet;
+
   return (
     <>
       <h2>{title}</h2>
@@ -24,12 +26,16 @@ const BasicInfo = ({
         Published {publishedDate}, {pageCount} pages
       </p>
       <p>Genres: {categories.join(', ')}</p>
-      {showDescription ? (
+      {hasDescription && showDescription ? (
         <>
           <div className="book-description">
             <p>{description}</p>
           </div>
-          <button type="button" onClick={() => setShowDescription(false)}>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setShowDescription(false)}
+          >
             hide description
           </button>
         </>
@@ -38,9 +44,15 @@ const BasicInfo = ({
           <div className="book-description">
             <p>{textSnippet}</p>
           </div>
-          <button type="button" onClick={() => setShowDescription(true)}>
-            show description
-          </button>
+          {hasDescription && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setShowDescription(true)}
+            >
+              show description
+            </button>
+          )}
         </>
       )}
     </>

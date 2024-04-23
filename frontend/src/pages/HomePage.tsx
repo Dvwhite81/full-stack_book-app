@@ -50,7 +50,7 @@ const HomePage = ({
   return (
     <div className="page home-page">
       <h2>Logged In User: {loggedInUser?.username}</h2>
-      <button type="button" onClick={handleLogOut}>
+      <button type="button" className="btn" onClick={handleLogOut}>
         Log Out
       </button>
 

@@ -62,7 +62,9 @@ const AddEventForm = ({ addEvent }: AddEventFormProps) => {
           setValue: setEnd,
         }}
       />
-      <button type="submit">Add Event</button>
+      <button type="submit" className="btn btn-submit">
+        Add Event
+      </button>
     </form>
   );
 };

@@ -26,7 +26,7 @@ const AuthForm = ({ formType, fields, handleSubmit }: AuthFormProps) => {
       {fields.map((field, index) => (
         <FormInput key={index} field={field} />
       ))}
-      <button type="submit">{btnText}</button>
+      <button type="submit" className='btn btn-submit'>{btnText}</button>
       <p>
         {pText} <Link to={linkPath}>{linkText}</Link>
       </p>

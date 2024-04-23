@@ -25,9 +25,11 @@ const NoImageCard = ({
       {userHasRead.map((b) => b.bookId).includes(book.bookId) ? (
         <p>Read!</p>
       ) : (
-        <button onClick={() => addHasRead(book)}>Mark Read</button>
+        <button className="btn" onClick={() => addHasRead(book)}>
+          Mark Read
+        </button>
       )}
-      <button>Review</button>
+      <button className="btn">Review</button>
       <BasicInfo
         book={book}
         showDescription={showDescription}

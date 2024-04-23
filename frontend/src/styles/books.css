@@ -32,9 +32,10 @@
   border-radius: 25px;
   height: 70%;
   max-height: 90vh;
+  max-width: 90vh;
   padding: 1rem;
   position: relative;
-  width: 80%;
+  width: fit-content;
 }
 
 .book-description {
@@ -67,9 +68,9 @@
   font-weight: bold;
   height: 1rem;
   justify-content: center;
+  left: 1rem;
   padding: 0;
   position: absolute;
-  right: 1rem;
   top: 1rem;
   width: 1rem;
 }

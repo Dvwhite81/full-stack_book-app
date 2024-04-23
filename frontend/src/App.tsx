@@ -205,7 +205,7 @@ function App() {
           userHasRead={userHasRead}
         />
       )}
-      <ToastContainer theme="colored" newestOnTop />
+      <ToastContainer theme="colored" autoClose={2000} newestOnTop />
     </div>
   );
 }

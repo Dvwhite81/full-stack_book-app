@@ -10,7 +10,7 @@ body {
   padding: 0;
 }
 
-button {
+.btn {
   background-color: lightblue;
   border-radius: 10px;
   border: none;
@@ -20,7 +20,7 @@ button {
   font-weight: bold;
 }
 
-button:hover {
+.btn:hover {
   background-color: black;
   color: lightblue;
   cursor: pointer;

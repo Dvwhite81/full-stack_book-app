@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import 'express-async-errors';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import config from '../utils/config';
 
 import User from '../models/user';
@@ -21,20 +21,26 @@ usersRouter.get('/', async (req, res) => {
 // Get User by Token
 usersRouter.get('/:token', async (req, res) => {
   console.log('usersRouter get params:', req.params);
-  const { token } = req.params;
-  console.log('token:', token);
-  const decoded = jwt.verify(token, config.SECRET as string) as JwtPayload;
-  console.log('getByToken decoded:', decoded);
+  try {
+    const { token } = req.params;
+    console.log('token:', token);
+    const decoded = jwt.verify(token, config.SECRET as string) as JwtPayload;
+    console.log('getByToken decoded:', decoded);
 
-  const user = decoded;
-  const { id } = user;
+    const user = decoded;
+    const { id } = user;
 
-  const dbUser = await User.findById(id).populate(populateQuery);
+    const dbUser = await User.findById(id).populate(populateQuery);
 
-  res.json({
-    success: true,
-    user: dbUser,
-  });
+    res.json({
+      success: true,
+      user: dbUser,
+    });
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      console.log('Token exists but is expired.');
+    }
+  }
 });
 
 // Get User Books by Username
