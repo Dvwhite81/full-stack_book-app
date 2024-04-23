@@ -5,15 +5,16 @@ import config from '../utils/config';
 
 import User from '../models/user';
 
+const populateQuery = [
+  { path: 'booksRead' },
+  { path: 'booksToRead' },
+  { path: 'bookReviews' },
+];
 const usersRouter = Router();
 
 // Get All Users
 usersRouter.get('/', async (req, res) => {
-  const users = await User.find({}).populate(
-    'booksRead',
-    'booksToRead',
-    'bookReviews'
-  );
+  const users = await User.find({}).populate(populateQuery);
   res.json(users);
 });
 
@@ -28,7 +29,7 @@ usersRouter.get('/:token', async (req, res) => {
   const user = decoded;
   const { id } = user;
 
-  const dbUser = await User.findById(id);
+  const dbUser = await User.findById(id).populate(populateQuery);
 
   res.json({
     success: true,
@@ -39,10 +40,13 @@ usersRouter.get('/:token', async (req, res) => {
 // Get User Books by Username
 usersRouter.get('/:username/books', async (req, res) => {
   const { username } = req.params;
-  const user = await User.findOne({ username: username });
+  const user = await User.findOne({ username: username }).populate(
+    populateQuery
+  );
 
   if (user) {
     res.json({
+      success: true,
       booksRead: user.booksRead,
       booksToRead: user.booksToRead,
       bookReviews: user.bookReviews,

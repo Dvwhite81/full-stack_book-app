@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BookType } from '../utils/types';
+import { BookType, UserType } from '../utils/types';
 
 const baseUrl = 'http://localhost:7000/api';
 
@@ -59,24 +59,23 @@ const getEventById = async (id: string) => {
   }
 };
 
-const getUserEvents = async (username: string, token: string) => {
-  const { data } = await axios.get(`${baseUrl}/users/${username}/events`, {
+const getUserBooks = async (username: string, token: string) => {
+  const { data } = await axios.get(`${baseUrl}/users/${username}/books`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log('getUserEvents data:', data);
+  //console.log('getUserBooks data:', data);
   if (data.success) {
-    const eventIds = data.events;
-    const userEvents = [];
+    const booksRead = data.booksRead;
+    const booksToRead = data.booksToRead;
+    const bookReviews = data.bookReviews;
 
-    for (const id of eventIds) {
-      const event = getEventById(id);
-      userEvents.push(event);
-    }
     return {
       success: true,
-      events: userEvents,
+      booksRead,
+      booksToRead,
+      bookReviews,
     };
   } else {
     return {
@@ -86,7 +85,22 @@ const getUserEvents = async (username: string, token: string) => {
   }
 };
 
-const addHasRead = async (token: string, book: BookType) => {
+const addHasRead = async (user: UserType, token: string, book: BookType) => {
+  const alreadyRead = (await getUserBooks(user.username, token)).booksRead;
+  console.log('addHasRead alreadyRead:', alreadyRead);
+  const readBooks = alreadyRead.map((b: BookType) => b.bookId);
+  console.log('addHasRead readBooks:', readBooks);
+  console.log('addHasRead book.bookId:', book.id);
+  if (
+    alreadyRead &&
+    alreadyRead.map((b: BookType) => b.bookId).includes(book.id)
+  ) {
+    return {
+      success: false,
+      message: 'Book already saved!',
+    };
+  }
+
   const { data } = await axios.post(
     `${baseUrl}/books/has-read`,
     {
@@ -154,7 +168,8 @@ export default {
   addHasRead,
   deleteUserEvent,
   getUserByToken,
-  getUserEvents,
+  getEventById,
+  getUserBooks,
   login,
   register,
 };

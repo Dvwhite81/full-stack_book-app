@@ -17,10 +17,15 @@ require("express-async-errors");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../utils/config"));
 const user_1 = __importDefault(require("../models/user"));
+const populateQuery = [
+    { path: 'booksRead' },
+    { path: 'booksToRead' },
+    { path: 'bookReviews' },
+];
 const usersRouter = (0, express_1.Router)();
 // Get All Users
 usersRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_1.default.find({}).populate('booksRead', 'booksToRead', 'bookReviews');
+    const users = yield user_1.default.find({}).populate(populateQuery);
     res.json(users);
 }));
 // Get User by Token
@@ -32,7 +37,7 @@ usersRouter.get('/:token', (req, res) => __awaiter(void 0, void 0, void 0, funct
     console.log('getByToken decoded:', decoded);
     const user = decoded;
     const { id } = user;
-    const dbUser = yield user_1.default.findById(id);
+    const dbUser = yield user_1.default.findById(id).populate(populateQuery);
     res.json({
         success: true,
         user: dbUser,
@@ -41,9 +46,10 @@ usersRouter.get('/:token', (req, res) => __awaiter(void 0, void 0, void 0, funct
 // Get User Books by Username
 usersRouter.get('/:username/books', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.params;
-    const user = yield user_1.default.findOne({ username: username });
+    const user = yield user_1.default.findOne({ username: username }).populate(populateQuery);
     if (user) {
         res.json({
+            success: true,
             booksRead: user.booksRead,
             booksToRead: user.booksToRead,
             bookReviews: user.bookReviews,
@@ -51,22 +57,6 @@ usersRouter.get('/:username/books', (req, res) => __awaiter(void 0, void 0, void
     }
     else {
         res.status(404).end();
-    }
-}));
-// Add Read Book or Book To Read
-usersRouter.post('/:username', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username } = req.params;
-    const user = yield user_1.default.findOne({ username: username });
-    if (user) {
-        const { book, type } = req.body;
-        if (type === 'hasRead') {
-            user.booksRead = user.booksRead.concat(book);
-        }
-        else if (type === 'toRead') {
-            user.booksToRead = user.booksToRead.concat(book);
-        }
-        yield user.save();
-        res.json(user);
     }
 }));
 // Delete User

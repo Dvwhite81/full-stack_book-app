@@ -2,6 +2,12 @@ import { Response, Router } from 'express';
 import BookModel from '../models/book';
 import User from '../models/user';
 
+const populateQuery = [
+  { path: 'booksRead' },
+  { path: 'booksToRead' },
+  { path: 'bookReviews' },
+];
+
 const booksRouter = Router();
 
 booksRouter.get('/', async (req, res: Response) => {
@@ -57,30 +63,50 @@ booksRouter.post('/:type', async (req, res: Response) => {
   const { type } = req.params;
   const { body, user } = req;
 
-  if (!user) {
+  const { book } = body;
+  const { id, searchInfo, volumeInfo } = book;
+
+  const dbUser = await User.findOne({ username: user.username }).populate(
+    populateQuery
+  );
+
+  if (!user || !dbUser) {
     return res.status(401).json({ error: 'missing or invalid token' });
   }
 
-  const { book } = body;
-  const { bookId, volumeInfo } = book;
+  if (type === 'has-read') {
+    const existingBook = await BookModel.findOne({ bookId: book.bookId });
+    console.log('existing book:', existingBook);
+    if (existingBook && existingBook.userHasRead) {
+      return res.json({
+        success: false,
+        message: 'Book Already Saved!',
+      });
+    }
+  }
 
   const newBookModel = new BookModel({
-    bookId,
+    bookId: id,
+    searchInfo,
     volumeInfo,
     userHasRead: type === 'has-read',
-    user: user.id,
+    user: dbUser.id,
   });
 
   const savedBookModel = await newBookModel.save();
 
   if (type === 'has-read') {
-    user.booksRead = user.booksRead.concat(savedBookModel._id);
+    dbUser.booksRead = dbUser.booksRead.concat(savedBookModel._id);
   } else if (type === 'to-read') {
-    user.booksToRead = user.booksToRead.concat(savedBookModel._id);
+    dbUser.booksToRead = dbUser.booksToRead.concat(savedBookModel._id);
   }
 
-  await user.save();
-  res.status(201).json(savedBookModel);
+  await dbUser.save();
+  res.status(201).json({
+    success: true,
+    message: 'Marked book read!',
+    book: savedBookModel,
+  });
 });
 
 booksRouter.delete('/:id', async (req, res: Response) => {

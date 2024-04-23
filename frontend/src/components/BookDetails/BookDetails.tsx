@@ -6,9 +6,16 @@ import NoImageCard from './NoImageCard';
 interface BookDetailsProps {
   book: BookInDB | BookType;
   setCurrentBook: (value: BookType | null) => void;
+  addHasRead: (value: BookType) => void;
+  userHasRead: BookInDB[];
 }
 
-const BookDetails = ({ book, setCurrentBook }: BookDetailsProps) => {
+const BookDetails = ({
+  book,
+  setCurrentBook,
+  addHasRead,
+  userHasRead,
+}: BookDetailsProps) => {
   const [showDescription, setShowDescription] = useState(false);
 
   const { volumeInfo } = book;
@@ -21,6 +28,8 @@ const BookDetails = ({ book, setCurrentBook }: BookDetailsProps) => {
           showDescription={showDescription}
           setShowDescription={setShowDescription}
           setCurrentBook={setCurrentBook}
+          addHasRead={addHasRead}
+          userHasRead={userHasRead}
         />
       ) : (
         <NoImageCard
@@ -28,6 +37,8 @@ const BookDetails = ({ book, setCurrentBook }: BookDetailsProps) => {
           showDescription={showDescription}
           setShowDescription={setShowDescription}
           setCurrentBook={setCurrentBook}
+          addHasRead={addHasRead}
+          userHasRead={userHasRead}
         />
       )}
     </div>

@@ -15,6 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const book_1 = __importDefault(require("../models/book"));
 const user_1 = __importDefault(require("../models/user"));
+const populateQuery = [
+    { path: 'booksRead' },
+    { path: 'booksToRead' },
+    { path: 'bookReviews' },
+];
 const booksRouter = (0, express_1.Router)();
 booksRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('GET');
@@ -62,26 +67,42 @@ booksRouter.post('/:type', (req, res) => __awaiter(void 0, void 0, void 0, funct
     console.log('POST TYPE');
     const { type } = req.params;
     const { body, user } = req;
-    if (!user) {
+    const { book } = body;
+    const { id, searchInfo, volumeInfo } = book;
+    const dbUser = yield user_1.default.findOne({ username: user.username }).populate(populateQuery);
+    if (!user || !dbUser) {
         return res.status(401).json({ error: 'missing or invalid token' });
     }
-    const { book } = body;
-    const { bookId, volumeInfo } = book;
+    if (type === 'has-read') {
+        const existingBook = yield book_1.default.findOne({ bookId: book.bookId });
+        console.log('existing book:', existingBook);
+        if (existingBook && existingBook.userHasRead) {
+            return res.json({
+                success: false,
+                message: 'Book Already Saved!',
+            });
+        }
+    }
     const newBookModel = new book_1.default({
-        bookId,
+        bookId: id,
+        searchInfo,
         volumeInfo,
         userHasRead: type === 'has-read',
-        user: user.id,
+        user: dbUser.id,
     });
     const savedBookModel = yield newBookModel.save();
     if (type === 'has-read') {
-        user.booksRead = user.booksRead.concat(savedBookModel._id);
+        dbUser.booksRead = dbUser.booksRead.concat(savedBookModel._id);
     }
     else if (type === 'to-read') {
-        user.booksToRead = user.booksToRead.concat(savedBookModel._id);
+        dbUser.booksToRead = dbUser.booksToRead.concat(savedBookModel._id);
     }
-    yield user.save();
-    res.status(201).json(savedBookModel);
+    yield dbUser.save();
+    res.status(201).json({
+        success: true,
+        message: 'Marked book read!',
+        book: savedBookModel,
+    });
 }));
 booksRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;

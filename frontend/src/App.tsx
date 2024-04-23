@@ -11,11 +11,11 @@ import {
 } from './utils/types';
 import userService from './services/userService';
 
+import BookDetails from './components/BookDetails/BookDetails';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import './App.css';
-import BookDetails from './components/BookDetails/BookDetails';
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<UserType | null>(null);
@@ -32,19 +32,16 @@ function App() {
 
       if (token) {
         const result = await userService.getUserByToken(token);
-        console.log('checkLogged result:', result);
+        //console.log('checkLogged result:', result);
         if (result) {
           const { success, user } = result;
-          console.log('checkLogged success:', success);
+          //console.log('checkLogged success:', success);
 
           if (success && user) {
             const { user } = result;
-            console.log('checkLogged user:', user);
+            //console.log('checkLogged user:', user);
 
             setLoggedInUser(user);
-            setUserHasRead(user.booksRead);
-            setUserToRead(user.booksToRead);
-            setUserReviews(user.bookReviews);
             navigate('/');
           } else {
             localStorage.removeItem('token');
@@ -55,6 +52,31 @@ function App() {
 
     checkedLoggedIn();
   }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    const getUserBooks = async () => {
+      if (token && loggedInUser) {
+        const result = await userService.getUserBooks(
+          loggedInUser.username,
+          token
+        );
+
+        if (result) {
+          const { success, booksRead, booksToRead, bookReviews } = result;
+          //console.log('USEEFFECT RESULT:', result);
+          if (success) {
+            setUserHasRead(booksRead);
+            setUserToRead(booksToRead);
+            setUserReviews(bookReviews);
+          }
+        }
+      }
+    };
+
+    getUserBooks();
+  }, [loggedInUser, setUserHasRead, setUserToRead, setUserReviews]);
 
   const handleRegister = async (
     username: string,
@@ -129,17 +151,17 @@ function App() {
     toast.success('Logged out');
   };
 
-  /*
   const addHasRead = async (book: BookType) => {
+    console.log('App addHasRead book:', book);
     const token = localStorage.getItem('token');
 
     if (!loggedInUser || !token) return;
 
-    const result = await userService.addHasRead(token, book);
+    const result = await userService.addHasRead(loggedInUser, token, book);
 
     if (result) {
       const { success, message } = result;
-
+      console.log('addHasRead result:', result);
       if (success) {
         toast.success(message);
         setUserHasRead(result.hasRead);
@@ -148,7 +170,6 @@ function App() {
       }
     }
   };
-  */
 
   return (
     <div id="main-container">
@@ -175,7 +196,14 @@ function App() {
           element={<LoginPage handleLogin={handleLogin} />}
         />
       </Routes>
-      {currentBook && <BookDetails book={currentBook} setCurrentBook={setCurrentBook} />}
+      {currentBook && (
+        <BookDetails
+          book={currentBook}
+          setCurrentBook={setCurrentBook}
+          addHasRead={addHasRead}
+          userHasRead={userHasRead}
+        />
+      )}
       <ToastContainer theme="colored" newestOnTop />
     </div>
   );

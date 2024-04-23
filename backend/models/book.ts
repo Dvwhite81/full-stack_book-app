@@ -5,11 +5,20 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  searchInfo: {
+    type: Object,
+    required: true,
+  },
   volumeInfo: {
     type: Object,
     required: true,
   },
   userHasRead: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  userToRead: {
     type: Boolean,
     required: true,
     default: false,

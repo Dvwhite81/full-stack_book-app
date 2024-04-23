@@ -4,12 +4,17 @@ import jwt from 'jsonwebtoken';
 import config from '../utils/config';
 import User from '../models/user';
 
+const populateQuery = [
+  { path: 'booksRead' },
+  { path: 'booksToRead' },
+  { path: 'bookReviews' },
+];
 const loginRouter = Router();
 
 loginRouter.post('/', async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username }).populate(populateQuery);
   console.log('loginRouter user:', user);
   const correctPassword =
     user === null

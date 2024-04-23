@@ -18,6 +18,7 @@ interface HomePageProps {
 
 const HomePage = ({
   loggedInUser,
+  userHasRead,
   handleLogOut,
   setCurrentBook,
 }: HomePageProps) => {
@@ -26,7 +27,8 @@ const HomePage = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('useEffect loggedInUser:', loggedInUser);
+    //console.log('useEffect loggedInUser:', loggedInUser);
+    //console.log('useEffect userHasRead:', userHasRead);
 
     if (!loggedInUser) {
       navigate('/login');
@@ -53,8 +55,10 @@ const HomePage = ({
       </button>
 
       <SearchForm handleSearch={handleSearch} />
-      {bookResults.length > 0 && (
+      {bookResults.length > 0 ? (
         <BookDisplay books={bookResults} setCurrentBook={setCurrentBook} />
+      ) : (
+        <BookDisplay books={userHasRead} setCurrentBook={setCurrentBook} />
       )}
     </div>
   );

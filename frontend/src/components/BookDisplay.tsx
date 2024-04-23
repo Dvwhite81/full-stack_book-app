@@ -6,6 +6,7 @@ interface BookDisplayProps {
 }
 
 const BookDisplay = ({ books, setCurrentBook }: BookDisplayProps) => {
+  //console.log('BookDisplay books:', books);
   return (
     <div className="book-display">
       {books.map((book) => (

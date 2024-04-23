@@ -17,10 +17,15 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../utils/config"));
 const user_1 = __importDefault(require("../models/user"));
+const populateQuery = [
+    { path: 'booksRead' },
+    { path: 'booksToRead' },
+    { path: 'bookReviews' },
+];
 const loginRouter = (0, express_1.Router)();
 loginRouter.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
-    const user = yield user_1.default.findOne({ username });
+    const user = yield user_1.default.findOne({ username }).populate(populateQuery);
     console.log('loginRouter user:', user);
     const correctPassword = user === null
         ? false
