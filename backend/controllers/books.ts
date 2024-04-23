@@ -10,6 +10,7 @@ const populateQuery = [
 
 const booksRouter = Router();
 
+// Get all books in db
 booksRouter.get('/', async (req, res: Response) => {
   console.log('GET');
   const books = await BookModel.find({}).populate('user', { username: 1 });
@@ -17,6 +18,7 @@ booksRouter.get('/', async (req, res: Response) => {
   res.json(books);
 });
 
+// Get book in db by id
 booksRouter.get('/:id', async (req, res: Response) => {
   const book = await BookModel.findById(req.params.id);
   if (book) res.json(book);
@@ -58,6 +60,7 @@ booksRouter.post('/reviews', async (req, res: Response) => {
   res.status(201).json(savedBookModel);
 });
 
+// Mark book read or to read
 booksRouter.post('/:type', async (req, res: Response) => {
   console.log('POST TYPE');
   const { type } = req.params;
@@ -110,6 +113,49 @@ booksRouter.post('/:type', async (req, res: Response) => {
   });
 });
 
+// Unmark book read or to read
+booksRouter.put('/:type', async (req, res: Response) => {
+  console.log('POST TYPE');
+  const { type } = req.params;
+  const { body, user } = req;
+
+  const { bookId } = body;
+  const dbUser = await User.findOne({ username: user.username }).populate(
+    populateQuery
+  );
+
+  if (!user || !dbUser) {
+    return res.status(401).json({ error: 'missing or invalid token' });
+  }
+
+  if (type === 'has-read') {
+    const existingBook = await BookModel.findOne({ bookId: bookId });
+
+    if (existingBook && existingBook.userHasRead) {
+      existingBook.userHasRead = false;
+      await existingBook.save();
+
+      dbUser.booksRead = dbUser.booksRead.filter(
+        (b) => !existingBook._id.equals(b._id)
+      );
+      await dbUser.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'Removed read book!',
+        book: existingBook,
+        hasRead: dbUser.booksRead,
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: 'Book is not marked as read!',
+      });
+    }
+  }
+});
+
+// Delete book from db
 booksRouter.delete('/:id', async (req, res: Response) => {
   const { id } = req.params;
   const { user } = req;
@@ -130,6 +176,7 @@ booksRouter.delete('/:id', async (req, res: Response) => {
   }
 });
 
+// Edit book by id
 booksRouter.put('/:id', async (req, res: Response) => {
   const { id } = req.params;
   const { bookId, volumeInfo } = req.body;

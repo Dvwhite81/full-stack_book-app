@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { BookReview, BookInDB, UserType, BookType } from '../utils/types';
 import { useNavigate } from 'react-router-dom';
 import SearchForm from '../components/SearchForm';
-import bookService from '../services/bookService';
+import apiService from '../services/apiService';
 import BookDisplay from '../components/BookDisplay';
 
 interface HomePageProps {
@@ -36,7 +36,7 @@ const HomePage = ({
   });
 
   const handleSearch = async (searchTerm: string) => {
-    const result = await bookService.searchBooks(searchTerm);
+    const result = await apiService.searchBooks(searchTerm);
     const { success, books, message } = result;
 
     console.log('BOOKS:', books);

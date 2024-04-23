@@ -21,12 +21,14 @@ const populateQuery = [
     { path: 'bookReviews' },
 ];
 const booksRouter = (0, express_1.Router)();
+// Get all books in db
 booksRouter.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('GET');
     const books = yield book_1.default.find({}).populate('user', { username: 1 });
     console.log('books:', books);
     res.json(books);
 }));
+// Get book in db by id
 booksRouter.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const book = yield book_1.default.findById(req.params.id);
     if (book)
@@ -63,6 +65,7 @@ booksRouter.post('/reviews', (req, res) => __awaiter(void 0, void 0, void 0, fun
     yield dbUser.save();
     res.status(201).json(savedBookModel);
 }));
+// Mark book read or to read
 booksRouter.post('/:type', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('POST TYPE');
     const { type } = req.params;
@@ -105,6 +108,39 @@ booksRouter.post('/:type', (req, res) => __awaiter(void 0, void 0, void 0, funct
         hasRead: dbUser.booksRead,
     });
 }));
+// Unmark book read or to read
+booksRouter.put('/:type', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('POST TYPE');
+    const { type } = req.params;
+    const { body, user } = req;
+    const { bookId } = body;
+    const dbUser = yield user_1.default.findOne({ username: user.username }).populate(populateQuery);
+    if (!user || !dbUser) {
+        return res.status(401).json({ error: 'missing or invalid token' });
+    }
+    if (type === 'has-read') {
+        const existingBook = yield book_1.default.findOne({ bookId: bookId });
+        if (existingBook && existingBook.userHasRead) {
+            existingBook.userHasRead = false;
+            yield existingBook.save();
+            dbUser.booksRead = dbUser.booksRead.filter((b) => !existingBook._id.equals(b._id));
+            yield dbUser.save();
+            res.status(201).json({
+                success: true,
+                message: 'Removed read book!',
+                book: existingBook,
+                hasRead: dbUser.booksRead,
+            });
+        }
+        else {
+            return res.json({
+                success: false,
+                message: 'Book is not marked as read!',
+            });
+        }
+    }
+}));
+// Delete book from db
 booksRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
@@ -123,6 +159,7 @@ booksRouter.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, funct
         res.status(204).end();
     }
 }));
+// Edit book by id
 booksRouter.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { bookId, volumeInfo } = req.body;

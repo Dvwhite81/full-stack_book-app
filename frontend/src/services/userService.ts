@@ -1,66 +1,29 @@
 import axios from 'axios';
 import { BookType, UserType } from '../utils/types';
 
-const baseUrl = 'http://localhost:7000/api';
+const bookUrl = 'http://localhost:7000/api/books';
+const userUrl = 'http://localhost:7000/api/users';
 
-const login = async (username: string, password: string) => {
-  const user = { username, password };
-  console.log('userService login user:', user);
-  const response = await axios.post(`${baseUrl}/login`, user);
-
-  console.log('userService login response:', response);
-  const { data } = response;
-  console.log('userService login data:', data);
-  if (data.success) {
-    return {
-      success: true,
-      message: data.message,
-      user: data.user,
-      token: data.token,
-    };
-  } else {
-    return {
-      success: false,
-      message: data.message,
-    };
-  }
-};
-
-const register = async (username: string, password: string) => {
-  const user = { username, password };
-
-  const { data } = await axios.post(`${baseUrl}/register`, user);
-  console.log('userService register data:', data);
-  if (data.success) {
-    return login(username, password);
-  } else {
-    return {
-      success: false,
-      message: data.message,
-    };
-  }
-};
-
-const getEventById = async (id: string) => {
-  const { data } = await axios.get(`${baseUrl}/events/${id}`);
-  console.log('getEventById data:', data);
+const getBookById = async (id: string) => {
+  const { data } = await axios.get(`${bookUrl}/${id}`);
+  console.log('getBookById data:', data);
 
   if (data) {
     const { success } = data;
-    console.log('getEventById success:', success);
+    console.log('getBookById success:', success);
 
     if (success) {
-      const { event } = data;
+      const { book } = data;
       return {
         success: true,
-        event: event,
+        book: book,
       };
     }
   }
 };
 
 const getUserBooks = async (username: string, token: string) => {
-  const { data } = await axios.get(`${baseUrl}/users/${username}/books`, {
+  const { data } = await axios.get(`${userUrl}/${username}/books`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -102,7 +65,7 @@ const addHasRead = async (user: UserType, token: string, book: BookType) => {
   }
 
   const { data } = await axios.post(
-    `${baseUrl}/books/has-read`,
+    `${bookUrl}/has-read`,
     {
       token,
       book,
@@ -130,31 +93,27 @@ const addHasRead = async (user: UserType, token: string, book: BookType) => {
   }
 };
 
-const deleteUserEvent = async (token: string, eventId: string) => {
-  const { user } = await getUserByToken(token);
-  console.log('deleteUserEvent eventId:', eventId);
-  const { username } = user;
+const removeHasRead = async (token: string, bookId: string) => {
+  console.log('removeHasRead bookId:', bookId);
 
   const { data } = await axios.put(
-    `${baseUrl}/users/${username}/events/${eventId}`
+    `${bookUrl}/has-read`,
+    {
+      token,
+      bookId,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
-  console.log('deleteUserEvent data:', data);
+  console.log('removeHasRead data:', data);
   if (data.success) {
     return {
       success: true,
-      message: 'Deleted event',
-      events: data.events,
-    };
-  }
-};
-
-const getUserByToken = async (token: string) => {
-  const { data } = await axios.get(`${baseUrl}/users/${token}`);
-
-  if (data.success) {
-    return {
-      success: true,
-      user: data.user,
+      message: 'Marked book not read',
+      hasRead: data.hasRead,
     };
   } else {
     return {
@@ -166,10 +125,7 @@ const getUserByToken = async (token: string) => {
 
 export default {
   addHasRead,
-  deleteUserEvent,
-  getUserByToken,
-  getEventById,
+  getBookById,
   getUserBooks,
-  login,
-  register,
+  removeHasRead,
 };

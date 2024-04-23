@@ -8,7 +8,8 @@ interface ImageCardProps {
   showDescription: boolean;
   setShowDescription: (value: boolean) => void;
   setCurrentBook: (value: BookType | null) => void;
-  addHasRead: (value: BookType) => void;
+  markRead: (value: BookType) => void;
+  markNotRead: (value: string) => void;
   userHasRead: BookInDB[];
 }
 
@@ -17,7 +18,8 @@ const ImageCard = ({
   showDescription,
   setShowDescription,
   setCurrentBook,
-  addHasRead,
+  markRead,
+  markNotRead,
   userHasRead,
 }: ImageCardProps) => {
   const [hasBeenRead, setHasBeenRead] = useState(false);
@@ -36,9 +38,14 @@ const ImageCard = ({
     }
   }, [userHasRead]);
 
-  const handleClick = (e: SyntheticEvent) => {
+  const handleRead = (e: SyntheticEvent) => {
     e.preventDefault();
-    addHasRead(book);
+    markRead(book);
+  };
+
+  const handleNotRead = (e: SyntheticEvent) => {
+    e.preventDefault();
+    markNotRead(book.bookId);
   };
 
   return (
@@ -54,9 +61,11 @@ const ImageCard = ({
         <div className="column">
           <HideButton setCurrentBook={setCurrentBook} />
           {hasBeenRead ? (
-            <p>Read!</p>
+            <button className="btn" onClick={handleNotRead}>
+              Mark Not Read
+            </button>
           ) : (
-            <button className="btn" onClick={handleClick}>
+            <button className="btn" onClick={handleRead}>
               Mark Read
             </button>
           )}

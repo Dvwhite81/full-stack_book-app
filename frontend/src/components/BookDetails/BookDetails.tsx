@@ -6,14 +6,16 @@ import NoImageCard from './NoImageCard';
 interface BookDetailsProps {
   book: BookInDB | BookType;
   setCurrentBook: (value: BookType | null) => void;
-  addHasRead: (value: BookType) => void;
+  markRead: (value: BookType) => void;
+  markNotRead: (value: string) => void;
   userHasRead: BookInDB[];
 }
 
 const BookDetails = ({
   book,
   setCurrentBook,
-  addHasRead,
+  markRead,
+  markNotRead,
   userHasRead,
 }: BookDetailsProps) => {
   const [showDescription, setShowDescription] = useState(false);
@@ -28,7 +30,8 @@ const BookDetails = ({
           showDescription={showDescription}
           setShowDescription={setShowDescription}
           setCurrentBook={setCurrentBook}
-          addHasRead={addHasRead}
+          markRead={markRead}
+          markNotRead={markNotRead}
           userHasRead={userHasRead}
         />
       ) : (
@@ -37,7 +40,8 @@ const BookDetails = ({
           showDescription={showDescription}
           setShowDescription={setShowDescription}
           setCurrentBook={setCurrentBook}
-          addHasRead={addHasRead}
+          markRead={markRead}
+          markNotRead={markNotRead}
           userHasRead={userHasRead}
         />
       )}

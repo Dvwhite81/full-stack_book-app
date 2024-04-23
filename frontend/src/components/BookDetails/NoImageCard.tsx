@@ -7,7 +7,7 @@ interface NoImageCardProps {
   showDescription: boolean;
   setShowDescription: (value: boolean) => void;
   setCurrentBook: (value: BookType | null) => void;
-  addHasRead: (value: BookType) => void;
+  markRead: (value: BookType) => void;
   userHasRead: BookInDB[];
 }
 
@@ -16,7 +16,7 @@ const NoImageCard = ({
   showDescription,
   setShowDescription,
   setCurrentBook,
-  addHasRead,
+  markRead,
   userHasRead,
 }: NoImageCardProps) => {
   return (
@@ -25,7 +25,7 @@ const NoImageCard = ({
       {userHasRead.map((b) => b.bookId).includes(book.bookId) ? (
         <p>Read!</p>
       ) : (
-        <button className="btn" onClick={() => addHasRead(book)}>
+        <button className="btn" onClick={() => markRead(book)}>
           Mark Read
         </button>
       )}

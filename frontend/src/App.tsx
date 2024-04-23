@@ -9,6 +9,7 @@ import {
   UserType,
   BookType,
 } from './utils/types';
+import authService from './services/authService';
 import userService from './services/userService';
 
 import BookDetails from './components/BookDetails/BookDetails';
@@ -31,7 +32,7 @@ function App() {
       const token = localStorage.getItem('token');
 
       if (token) {
-        const result = await userService.getUserByToken(token);
+        const result = await authService.getUserByToken(token);
         //console.log('checkLogged result:', result);
         if (result) {
           const { success, user } = result;
@@ -93,7 +94,7 @@ function App() {
       return;
     }
 
-    const result: AuthResult | undefined = await userService.register(
+    const result: AuthResult | undefined = await authService.register(
       username,
       password
     );
@@ -114,7 +115,7 @@ function App() {
       return;
     }
 
-    const result: AuthResult | undefined = await userService.login(
+    const result: AuthResult | undefined = await authService.login(
       username,
       password
     );
@@ -151,8 +152,8 @@ function App() {
     toast.success('Logged out');
   };
 
-  const addHasRead = async (book: BookType) => {
-    console.log('App addHasRead book:', book);
+  const markRead = async (book: BookType) => {
+    console.log('App markRead book:', book);
     const token = localStorage.getItem('token');
 
     if (!loggedInUser || !token) return;
@@ -161,10 +162,31 @@ function App() {
 
     if (result) {
       const { success, message } = result;
-      console.log('addHasRead result:', result);
+      console.log('markRead result:', result);
       if (success) {
         toast.success(message);
-        console.log('addHasRead result.hasRead:', result.hasRead);
+        console.log('markRead result.hasRead:', result.hasRead);
+        setUserHasRead(result.hasRead);
+      } else {
+        toast.error(message);
+      }
+    }
+  };
+
+  const markNotRead = async (bookId: string) => {
+    console.log('App markNotRead bookId:', bookId);
+    const token = localStorage.getItem('token');
+
+    if (!loggedInUser || !token) return;
+
+    const result = await userService.removeHasRead(token, bookId);
+
+    if (result) {
+      const { success, message } = result;
+      console.log('markNot result:', result);
+      if (success) {
+        toast.success(message);
+        console.log('markNot result.hasRead:', result.hasRead);
         setUserHasRead(result.hasRead);
       } else {
         toast.error(message);
@@ -201,7 +223,8 @@ function App() {
         <BookDetails
           book={currentBook}
           setCurrentBook={setCurrentBook}
-          addHasRead={addHasRead}
+          markRead={markRead}
+          markNotRead={markNotRead}
           userHasRead={userHasRead}
         />
       )}
